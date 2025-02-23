@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fast LiDAR Data Generation with Rectified Flows</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+      crossorigin="anonymous" />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+      crossorigin="anonymous"></script>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"
+      integrity="sha512-xh6O/CkQoPOWDdYTDqeRdPCVd1SpvCA9XXcUnZS2FmJNp1coAFzvtCN9BmamE+4aHK8yyUHUSCcJHgXloTyT2A=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer" />
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Barlow+Semi+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+      rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>
+      hljs.highlightAll();
+    </script>
+
+    <link rel="stylesheet" type="text/css" href="css/main.css" />
+
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-79606002-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-HJM3XH5K6G");
+    </script>
+  </head>
+
+  <body>
+    <div class="container header">
+      <h5>
+        <a href="../dusty-gan" target="_blank" rel="noopener">DUSty (2021)</a>
+        → <a href="../dusty-gan-v2" target="_blank" rel="noopener">DUSty v2 (2023)</a> →
+        <a href="../r2dm" target="_blank" rel="noopener">R2DM (2024)</a> → R2Flow (2025)
+      </h5>
+    </div>
+
+    <div class="container header">
+      <h1 class="title"><i>Fast LiDAR Data Generation with Rectified Flows</i></h1>
+      <h5 class="authors">
+        <a href="https://kazuto1011.github.io/" target="_blank" rel="noopener">Kazuto Nakashima</a> <sup>1</sup>
+        &nbsp;&nbsp;&nbsp;
+        <a>Xiaowen Liu</a> <sup>1</sup>
+        &nbsp;&nbsp;&nbsp;
+        <a>Tomoya Miyawaki</a> <sup>1</sup>
+        &nbsp;&nbsp;&nbsp;
+        <a href="https://www-robotics.jpl.nasa.gov/who-we-are/people/yumi_iwashita/" target="_blank" rel="noopener">Yumi Iwashita</a> <sup>2</sup>
+        &nbsp;&nbsp;&nbsp;
+        <a href="https://robotics.ait.kyushu-u.ac.jp/kurazume/en/" target="_blank" rel="noopener">Ryo Kurazume</a> <sup>1</sup>
+      </h5>
+      <h5 class="affiliations"><sup>1</sup> Kyushu University&nbsp;&nbsp;&nbsp;<sup>2</sup> NASA Jet Propulsion Laboratory</h5>
+      <h5 class="conference">ICRA 2025 (to appear)</h5>
+      <div class="materials">
+        <a href="https://arxiv.org/abs/2412.02241" class="btn btn-primary"><i class="fa-solid fa-file-pdf"></i> Paper</a>
+        <a href="https://github.com/kazuto1011/r2flow" class="btn btn-primary"><i class="fa-brands fa-github"></i> Code</a>
+        <a href="" class="btn btn-primary disabled" aria-disabled="true"><i class="fa-solid fa-play"></i> Demo</a>
+        <a href="" class="btn btn-primary disabled" aria-disabled="true"><i class="fa-solid fa-file-powerpoint"></i> Slide</a>
+        <a href="" class="btn btn-primary disabled" aria-disabled="true"><i class="fa-solid fa-image"></i> Poster</a>
+      </div>
+    </div>
+
+    <div class="container content">
+      <h5 style="text-align: center">
+        <b>TL;DR:</b> A straight flow-based generative model for fast LiDAR data generation, named <span class="method-text"><b>R2Flow</b></span>
+      </h5>
+      <div class="video-container">
+        <video autoplay muted loop playsinline>
+          <source src="https://github.com/user-attachments/assets/5fdb9469-799b-438f-8334-a16d5e8180f8" type="video/mp4" />
+        </video>
+      </div>
+    </div>
+
+    <div class="container content">
+      <h2>Abstract</h2>
+      <p style="text-align: justify">
+        Building LiDAR generative models holds promise as powerful data priors for restoration, scene manipulation, and scalable simulation in
+        autonomous mobile robots. In recent years, approaches using diffusion models have emerged, significantly improving training stability and
+        generation quality. Despite the success of diffusion models, generating high-quality samples requires numerous iterations of running neural
+        networks, and the increasing computational cost can pose a barrier to robotics applications. To address this challenge, this paper presents
+        R2Flow, a fast and high-fidelity generative model for LiDAR data. Our method is based on rectified flows that learn straight trajectories,
+        simulating data generation with much fewer sampling steps against diffusion models. We also propose an efficient Transformer-based model
+        architecture for processing the image representation of LiDAR range and reflectance measurements. Our experiments on the unconditional
+        generation of the KITTI-360 dataset demonstrate the effectiveness of our approach in terms of both efficiency and quality.
+      </p>
+    </div>
+
+    <div class="container content">
+      <h2>Method Overview</h2>
+
+      <h3>What kind of framework is suitable for representing LiDAR data?</h3>
+      Recent advances in LiDAR generative models are driven by diffusion models based on the range image representation. Among them, LiDAR diffusion
+      models currently follow two approaches for generating range images: pixel-space iteration and feature-space iteration, inspired by a natural
+      image domain. We prioritize pixel precision required for range images and employ the pixel-space iteration approach.
+
+      <table class="table table-hover align-middle mt-3 mb-4">
+        <thead>
+          <tr>
+            <th></th>
+            <th scope="col" style="width: 43%">Pixel-space iteration<br /><span class="reference" data-ref="ho2020">[Ho et al. 2020]</span></th>
+            <th scope="col" style="width: 43%">
+              Feature-space iteration<br /><span class="reference" data-ref="rombach2022">[Rombach et al. 2022]</span>
+            </th>
+          </tr>
+        </thead>
+        <tbody class="table-group-divider">
+          <tr>
+            <td class="table-active">Architecture</td>
+            <td>
+              <img class="m-2" src="https://github.com/user-attachments/assets/e884da33-c9cf-4b81-8c07-26f0f95c89a8" style="width: 70%" /><br />
+              Diffusion modeling on <u>high-dimensional</u> pixels
+            </td>
+            <td>
+              <img class="m-2" src="https://github.com/user-attachments/assets/f574687e-f849-4fba-9a92-293ab8d2defc" style="width: 70%" /><br />
+              Diffusion modeling on <u>lower-dimensional</u> features compressed by autoencoders (AEs)
+            </td>
+          </tr>
+          <tr>
+            <td class="table-active">Pros</td>
+            <td><u>Finer details</u> via direct iterative modeling</td>
+            <td>The iterative space is low-dimensional; <u>high throughput</u></td>
+          </tr>
+          <tr>
+            <td class="table-active">Cons</td>
+            <td>The iterative space is high-dimensional; <u>low throughput</u></td>
+            <td><u>Blurriness</u> due to the extra AE decoding</td>
+          </tr>
+          <tr>
+            <td class="table-primary">LiDAR<br />application</td>
+            <td>
+              LiDARGen&nbsp;<span class="reference" data-ref="zyrianov2022">[Zyrianov et al. 2022]</span><br />
+              R2DM&nbsp;<span class="reference" data-ref="nakashima2024">[Nakashima et al. 2024]</span><br />
+              <span class="method-text"><b>R2Flow</b> (ours)</span>
+            </td>
+            <td>LiDM&nbsp;<span class="reference" data-ref="ran2024">[Ran et al. 2024]</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>How can we reduce the number of sampling steps?</h3>
+      Sampling of diffusion models requires iterative evaluations of neural networks such as U-Net. The overall throughput is highly dependent on how
+      much the number of iterations can be reduced. We address this issue by adopting rectified flows
+      <span class="reference" data-ref="liu2023">[Liu et al. 2023]</span> which are robust to the number of sampling steps.
+
+      <table class="table table-hover align-middle mt-3 mb-4">
+        <thead>
+          <tr>
+            <th></th>
+            <th scope="col" style="width: 43%">Diffusion models<br /><span class="reference" data-ref="song2021">[Song et al. 2021]</span></th>
+            <th scope="col" style="width: 43%">Rectified flows<br /><span class="reference" data-ref="liu2023">[Liu et al. 2023]</span></th>
+          </tr>
+        </thead>
+        <tbody class="table-group-divider">
+          <tr>
+            <td class="table-active">Formulation</td>
+            <td>Stochastic differential equations (SDEs)</td>
+            <td>Ordinary differential equations (ODEs)</td>
+          </tr>
+          <tr>
+            <td class="table-active">Trajectory</td>
+            <td>
+              <video autoplay muted loop playsinline class="m-0" style="width: 500px">
+                <source src="https://github.com/user-attachments/assets/3089ca57-6373-4f82-be4a-ab9766c06f34" type="video/mp4" /></video
+              ><br />
+              Probabilistic & curved<br />(prone to discretization errors)
+            </td>
+            <td>
+              <video autoplay muted loop playsinline class="m-0" style="width: 500px">
+                <source src="https://github.com/user-attachments/assets/f41d8d7f-4bfa-4714-ba9a-887251346cac" type="video/mp4" /></video
+              ><br />
+              Deterministic & straight<br />(easy to approximate with few steps)
+            </td>
+          </tr>
+          <tr>
+            <td class="table-primary">LiDAR<br />application</td>
+            <td>
+              LiDARGen&nbsp;<span class="reference" data-ref="zyrianov2022">[Zyrianov et al. 2022]</span><br />
+              R2DM&nbsp;<span class="reference" data-ref="nakashima2024">[Nakashima et al. 2024]</span><br />
+              LiDM&nbsp;<span class="reference" data-ref="ran2024">[Ran et al. 2024]</span>
+            </td>
+            <td>
+              <span class="method-text"><b>R2Flow</b> (ours)</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>What if the pixel-space iteration is completed in just a few steps?</h3>
+
+      By combining the pixel-space iteration approach with rectified flows, we demonstrated both high geometric accuracy and generation efficiency.
+      Moreover, we also propose a Vision Transformer-based architecture for the neural network that learns flows in pixel space. We modify HDiT
+      (hourglass diffusion transformer) <span class="reference" data-ref="crowson2024">[Crowson et al. 2024]</span> to represent LiDAR range &
+      reflectance (intensity) images.
+
+      <img src="https://github.com/user-attachments/assets/901d8102-d869-4d44-9440-99e168eb1c77" />
+    </div>
+
+    <div class="container content">
+      <h2>Results</h2>
+
+      <h3>Unconditional generation</h3>
+      The following compares LiDAR generation models trained on the <span class="reference" data-ref="liao2022">KITTI-360</span> dataset. For the
+      diffusion-based methods (LiDM & R2DM) and <span class="method-text">R2Flow</span>, we show samples generated with many steps and few steps.
+      <span class="method-text">R2Flow</span> shows consistent quality over different number of steps. Please see
+      <span class="reference" data-ref="nakashima2025">our paper</span> for quantitative results on generation quality and computational costs.
+
+      <div class="container mt-3">
+        <div class="row">
+          <div class="col-md-4 pb-3">
+            <div class="video-single">
+              <video class="img-fluid mb-0 mt-0" autoplay muted loop playsinline>
+                <source src="https://github.com/user-attachments/assets/fbc1740d-e99f-415f-8023-85e5e0c0a6f8" type="video/mp4" />
+              </video>
+            </div>
+            <p class="mt-1 mb-4">Real data</p>
+          </div>
+          <div class="col-md-4 pb-3">
+            <div class="video-single">
+              <video class="img-fluid mb-0 mt-0" autoplay muted loop playsinline>
+                <source src="https://github.com/user-attachments/assets/78088880-46ba-4af1-9014-c095856ba98c" type="video/mp4" />
+              </video>
+              <p class="caption-left">1 step (fixed)</p>
+            </div>
+            <p class="mt-1 mb-0"><b>DUSty v2</b> (GAN)<br /><span class="reference" data-ref="nakashima2023">[Nakashima et al. 2023]</span></p>
+          </div>
+          <div class="col-md-4 pb-3">
+            <div class="video-single">
+              <video class="img-fruid mb-0 mt-0" autoplay muted loop playsinline>
+                <source src="https://github.com/user-attachments/assets/68eedd37-f890-4e34-aef5-235f7f5e1d9c" type="video/mp4" />
+              </video>
+              <p class="caption-left">1160 steps (fixed)</p>
+            </div>
+            <p class="mt-1 mb-0"><b>LiDARGen</b> (diffusion)<br /><span class="reference" data-ref="zyrianov2022">[Zyrianov et al. 2022]</span></p>
+          </div>
+          <div class="col-md-4 pb-3">
+            <div class="video-compare">
+              <video id="video-left" class="img-fruid mb-0 mt-0" muted>
+                <source src="https://github.com/user-attachments/assets/c6c2f1f1-0814-4dc1-a32a-b96bb9c72938" type="video/mp4" />
+              </video>
+              <video id="video-right" class="img-fruid mb-0 mt-0" muted>
+                <source src="https://github.com/user-attachments/assets/cf173232-d967-486a-8448-ff9fe30f5bae" type="video/mp4" />
+              </video>
+              <p class="caption-left">200 steps</p>
+              <p class="caption-right">2 steps</p>
+              <div id="slider"></div>
+            </div>
+            <p class="mt-1 mb-0"><b>LiDM</b> (diffusion)<br /><span class="reference" data-ref="ran2024">[Ran et al. 2024]</span></p>
+          </div>
+          <div class="col-md-4 pb-3">
+            <div class="video-compare">
+              <video id="video-left" class="img-fluid mb-0 mt-0" muted>
+                <source src="https://github.com/user-attachments/assets/d87029b2-5a90-4dc2-8bf3-5e9a4408aec9" type="video/mp4" />
+              </video>
+              <video id="video-right" class="img-fluid mb-0 mt-0" muted>
+                <source src="https://github.com/user-attachments/assets/a1934c74-ff73-480b-baed-8023a0c4895e" type="video/mp4" />
+              </video>
+              <p class="caption-left">256 steps</p>
+              <p class="caption-right">2 steps</p>
+              <div id="slider"></div>
+            </div>
+            <p class="mt-1 mb-0"><b>R2DM</b> (diffusion)<br /><span class="reference" data-ref="nakashima2024">[Nakashima et al. 2024]</span></p>
+          </div>
+          <div class="col-md-4 pb-3">
+            <div class="video-compare">
+              <video id="video-left" class="img-fluid mb-0 mt-0" muted>
+                <source src="https://github.com/user-attachments/assets/857c0bbb-eb3e-4ab8-82bb-3791f22d3d49" type="video/mp4" />
+              </video>
+              <video id="video-right" class="img-fluid mb-0 mt-0" muted>
+                <source src="https://github.com/user-attachments/assets/a7d2e0b7-2815-459c-ba92-5a33554a66f6" type="video/mp4" />
+              </video>
+              <p class="caption-left">256 steps</p>
+              <p class="caption-right">2 steps</p>
+              <div id="slider"></div>
+            </div>
+            <p class="mt-1 mb-0">
+              <span class="method-text"> <b>R2Flow</b> (rectified flows)<br />[Ours]</span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      Note: LiDARGen runs on the fixed noise schdule. LiDM only produces the range modality.
+    </div>
+
+    <div class="container content">
+      <h2>Citation</h2>
+      <pre class="bibtex" style="text-align: left">
+<code class="language-json">@inproceedings{nakashima2025fast,
+    title     = {Fast LiDAR Data Generation with Rectified Flows},
+    author    = {Kazuto Nakashima and Xiaowen Liu and Tomoya Miyawaki and Yumi Iwashita and Ryo Kurazume},
+    booktitle = {Proceedings of the IEEE International Conference on Robotics and Automation (ICRA)},
+    pages     = {},
+    year      = 2025
+}</code></pre>
+    </div>
+
+    <div class="container content">
+      <h2>Acknowledgments</h2>
+      <p>
+        This work was supported by
+        <span class="reference" data-ref="JP23K16974">JSPS KAKENHI Grant Number JP23K16974</span>
+        and <span class="reference" data-ref="JP20H00230">JSPS KAKENHI Grant Number JP20H00230</span>
+      </p>
+    </div>
+
+    <div class="references-data">
+      <div id="song2021">
+        <div id="bib">
+          <b>Score-Based Generative Modeling through Stochastic Differential Equations</b><br />
+          Yang Song, Jascha Sohl-Dickstein, Diederik P. Kingma, Abhishek Kumar, Stefano Ermon, Ben Poole<br />
+          ICLR 2021
+        </div>
+        <div id="paper_url">https://arxiv.org/abs/2209.03003</div>
+      </div>
+      <div id="liu2023">
+        <div id="bib">
+          <b>Flow Straight and Fast: Learning to Generate and Transfer Data with Rectified Flow</b><br />
+          Xingchao Liu, Chengyue Gong, Qiang Liu<br />
+          ICLR 2023
+        </div>
+        <div id="paper_url">https://arxiv.org/abs/2209.03003</div>
+      </div>
+      <div id="nakashima2023">
+        <div id="bib">
+          <b>Generative Range Imaging for Learning Scene Priors of 3D LiDAR Data</b><br />
+          Kazuto Nakashima, Yumi Iwashita, Ryo Kurazume<br />
+          WACV 2023
+        </div>
+        <div id="paper_url">https://arxiv.org/abs/2210.11750</div>
+      </div>
+      <div id="nakashima2024">
+        <div id="bib">
+          <b>LiDAR Data Synthesis with Denoising Diffusion Probabilistic Models</b><br />
+          Kazuto Nakashima, Ryo Kurazume<br />
+          ICRA 2024
+        </div>
+        <div id="paper_url">https://arxiv.org/abs/2309.09256</div>
+      </div>
+      <div id="nakashima2025">
+        <div id="bib">
+          <b>Fast LiDAR Data Generation with Rectified Flows</b><br />
+          Kazuto Nakashima, Xiaowen Liu, Tomoya Miyawaki, Yumi Iwashita, Ryo Kurazume<br />
+          ICRA 2025
+        </div>
+        <div id="paper_url">https://arxiv.org/abs/2412.02241</div>
+      </div>
+      <div id="zyrianov2022">
+        <div id="bib">
+          <b>Learning to Generate Realistic LiDAR Point Clouds</b><br />
+          Vlas Zyrianov, Xiyue Zhu, Shenlong Wang <br />
+          ECCV 2022
+        </div>
+        <div id="paper_url">https://arxiv.org/abs/2209.03954</div>
+      </div>
+      <div id="ran2024">
+        <div id="bib">
+          <b>Towards Realistic Scene Generation with LiDAR Diffusion Models</b><br />
+          Haoxi Ran, Vitor Guizilini, Yue Wang <br />
+          CVPR 2024
+        </div>
+        <div id="paper_url">https://arxiv.org/abs/2404.00815</div>
+      </div>
+      <div id="crowson2024">
+        <div id="bib">
+          <b>Scalable High-Resolution Pixel-Space Image Synthesis with Hourglass Diffusion Transformers</b><br />
+          Katherine Crowson, Stefan Andreas Baumann, Alex Birch, Tanishq Mathew Abraham, Daniel Z. Kaplan, Enrico Shippole<br />
+          ICML 2024
+        </div>
+        <div id="paper_url">https://arxiv.org/abs/2401.11605</div>
+      </div>
+      <div id="rombach2022">
+        <div id="bib">
+          <b>High-Resolution Image Synthesis with Latent Diffusion Models</b><br />
+          Robin Rombach, Andreas Blattmann, Dominik Lorenz, Patrick Esser, Björn Ommer<br />
+          CVPR 2022
+        </div>
+        <div id="paper_url">https://arxiv.org/abs/2112.10752</div>
+      </div>
+      <div id="ho2020">
+        <div id="bib">
+          <b>Denoising Diffusion Probabilistic Models</b><br />
+          Jonathan Ho, Ajay Jain, Pieter Abbeel<br />
+          NeurIPS 2020
+        </div>
+        <div id="paper_url">https://arxiv.org/abs/2006.11239</div>
+      </div>
+      <div id="liao2022">
+        <div id="bib">
+          <b>KITTI-360: A Novel Dataset and Benchmarks for Urban Scene Understanding in 2D and 3D</b><br />
+          Yiyi Liao, Jun Xie, Andreas Geiger<br />
+          TPAMI 2022
+        </div>
+        <div id="paper_url">https://arxiv.org/abs/2109.13410</div>
+      </div>
+      <div id="JP23K16974">
+        <div id="bib">
+          <b>Development of a Realistic LiDAR Simulator based on Deep Generative Models</b><br />
+          Kazuto Nakashima<br />
+          Grant-in-Aid for Early-Career Scientists,<br />
+          The Japan Society for the Promotion of Science (JSPS)
+        </div>
+        <div id="paper_url">https://kaken.nii.ac.jp/en/grant/KAKENHI-PROJECT-23K16974/</div>
+      </div>
+      <div id="JP20H00230">
+        <div id="bib">
+          <b>Development of garbage collecting robot for marine microplastics</b><br />
+          Ryo Kurazume, Akihiro Kawamura, Qi An, Shoko Miyauchi, Kazuto Nakashima<br />
+          Grant-in-Aid for Scientific Research (A),<br />
+          The Japan Society for the Promotion of Science (JSPS)
+        </div>
+        <div id="paper_url">https://kaken.nii.ac.jp/en/grant/KAKENHI-PROJECT-20H00230/</div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", (event) => {
+        const references = document.querySelectorAll(".reference");
+        references.forEach((reference) => {
+          const refId = reference.getAttribute("data-ref");
+          const refElement = document.getElementById(refId);
+          const tooltip = document.createElement("span");
+          tooltip.className = "reference-tooltip";
+          tooltip.innerHTML = refElement.querySelector("#bib").innerHTML;
+          reference.appendChild(tooltip);
+          reference.addEventListener("click", () => {
+            const paperUrl = refElement.querySelector("#paper_url").innerHTML;
+            window.open(paperUrl, "_blank");
+          });
+        });
+
+        const videos = document.querySelectorAll(".video-compare");
+        videos.forEach((container) => {
+          const videoL = container.querySelector("#video-left");
+          const videoR = container.querySelector("#video-right");
+          const slider = container.querySelector("#slider");
+
+          videoL.play();
+          videoR.play();
+          videoL.addEventListener("ended", () => {
+            videoL.currentTime = 0;
+            videoR.currentTime = 0;
+            videoL.play();
+            videoR.play();
+          });
+
+          function moveSlider(e) {
+            const rect = container.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const width = rect.width;
+            const percentage = (x / width) * 100;
+            slider.style.left = `${percentage}%`;
+            videoL.style.clipPath = `inset(0 ${100 - percentage}% 0 0)`;
+          }
+
+          container.addEventListener("mousemove", moveSlider);
+          container.addEventListener("touchstart", moveSlider);
+          container.addEventListener("touchmove", moveSlider);
+        });
+      });
+    </script>
+  </body>
+</html>

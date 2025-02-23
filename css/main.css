@@ -1,0 +1,275 @@
+body {
+  font-family: "Barlow Semi Condensed", sans-serif;
+  color: #333333;
+  text-align: center;
+  font-size: large;
+}
+
+h1,
+h2 {
+  font-weight: bold;
+}
+
+img {
+  max-width: 100%;
+  max-height: 100%;
+  margin-top: 1em;
+  margin-bottom: 2em;
+}
+
+video {
+  max-width: 100%;
+  max-height: 100%;
+  margin-top: 1em;
+  margin-bottom: 2em;
+}
+
+a {
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.caption {
+  color: #999999;
+}
+
+.container {
+  max-width: 1000px;
+}
+
+.header {
+  margin-top: 1em;
+  text-align: center;
+}
+
+.title {
+  margin-top: 1em;
+  font-weight: bold;
+}
+
+.authors {
+  margin-top: 1em;
+}
+
+.affiliations {
+  margin-top: 1em;
+}
+
+.conference {
+  margin-top: 1em;
+}
+
+.materials {
+  margin-top: 2em;
+}
+
+.materials a {
+  margin-right: 0.3em;
+}
+
+.teaser {
+  margin-top: 2em;
+  text-align: center;
+}
+
+.teaser img {
+  max-width: 95%;
+}
+
+.content {
+  margin-top: 2em;
+}
+
+.center {
+  text-align: center;
+}
+
+pre.bibtex {
+  font-size: smaller;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border-color: #888888;
+  background: #eeeeee;
+}
+
+figure {
+  position: relative;
+  overflow: hidden;
+  margin: 0 0 0.2rem 0;
+}
+
+figcaption {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 14;
+  color: #fff;
+  display: inline-block;
+  padding: 0.2rem 0.8rem 0.2rem 0.8rem;
+}
+
+.arrow-bottom {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  margin-bottom: 0.2rem;
+  border-bottom: 0.3rem solid #333333;
+  border-right: 0.3rem solid #333333;
+  transform: rotate(45deg);
+}
+
+.reference {
+  font-weight: normal;
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+  color: rgba(var(--bs-link-color-rgb), var(--bs-link-opacity, 1));
+}
+
+.reference-tooltip {
+  font-size: smaller;
+  visibility: hidden;
+  width: 500px;
+  color: #333333;
+  background-color: #f9f9f9;
+  text-align: left;
+  border-radius: 5px;
+  padding: 10px;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -150px;
+  box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.reference-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #f9f9f9 transparent transparent transparent;
+}
+
+.reference:hover .reference-tooltip {
+  visibility: visible;
+  opacity: 1;
+  z-index: 10;
+}
+
+.references-data {
+  display: none;
+}
+
+.video-single {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.video-single video {
+  display: block;
+}
+
+.video-compare {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+#video-left {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  clip-path: inset(0 50% 0 0);
+}
+
+#video-right {
+  display: block;
+  z-index: 0;
+}
+
+.caption-left {
+  position: absolute;
+  padding: 3px 10px;
+  display: inline-block;
+  left: 0;
+  bottom: 0;
+  margin: 0;
+  color: white;
+  background-color: rgba(0, 0, 255, 0.7);
+  z-index: 5;
+  border-radius: 5px;
+}
+
+.caption-right {
+  position: absolute;
+  padding: 3px 10px;
+  display: inline-block;
+  right: 0;
+  bottom: 0;
+  margin: 0;
+  color: white;
+  background-color: rgba(255, 0, 0, 0.7);
+  z-index: 5;
+  border-radius: 5px;
+}
+
+#slider {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 3px;
+  height: 100%;
+  background: black;
+  cursor: ew-resize;
+  z-index: 3;
+}
+
+#slider::before {
+  position: absolute;
+  top: 50%;
+  content: "\25C0";
+  font-size: 15px;
+  left: -17px;
+  color: black;
+  z-index: 3;
+}
+
+#slider::after {
+  position: absolute;
+  top: 50%;
+  content: "\25B6";
+  font-size: 15px;
+  right: -17px;
+  color: black;
+  z-index: 3;
+}
+
+.method-text {
+  background: linear-gradient(90deg, #00204d, #2e5d95, #a4975d, #2e5d95, #00204d);
+  background-size: 200% 100%;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: shine 3s infinite linear;
+}
+
+@keyframes shine {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
