@@ -9,7 +9,7 @@ https://github.com/user-attachments/assets/5fdb9469-799b-438f-8334-a16d5e8180f8
 **Fast LiDAR Data Generation with Rectified Flows**<br>
 [Kazuto Nakashima](https://kazuto1011.github.io), Xiaowen Liu, Tomoya Miyawaki, Yumi Iwashita, Ryo Kurazume<br>
 ICRA 2025<br>
-[Project page](https://kazuto1011.github.io/r2flow) | [arXiv](https://arxiv.org/abs/2412.02241)
+[Project page](https://kazuto1011.github.io/r2flow) | [arXiv](https://arxiv.org/abs/2412.02241) | [Demo](https://huggingface.co/spaces/kazuto1011/r2flow)
 
 ## Setup
 
