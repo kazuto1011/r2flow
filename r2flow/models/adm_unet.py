@@ -1,3 +1,8 @@
+# =============================================================================
+# Reimplementation of the ADM-UNet:
+# https://arxiv.org/abs/2105.05233
+# =============================================================================
+
 from typing import Iterable, Literal
 
 import einops

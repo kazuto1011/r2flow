@@ -1,3 +1,8 @@
+# =============================================================================
+# This code is from:
+# https://github.com/kazuto1011/r2dm/blob/main/models/efficient_unet.py
+# =============================================================================
+
 from typing import Iterable, Literal
 
 import einops

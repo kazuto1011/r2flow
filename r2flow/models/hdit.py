@@ -1,3 +1,10 @@
+# =============================================================================
+# This code is based on:
+# https://github.com/crowsonkb/k-diffusion/blob/master/k_diffusion/models/image_transformer_v2.py
+#
+# Call `natten.use_fused_na(True)` for acceleration if running on GPUs.
+# =============================================================================
+
 import math
 from typing import List, Literal
 
@@ -11,8 +18,8 @@ from torch.nn.modules.utils import _pair
 
 from . import encoding, ops
 
-# natten.use_fused_na(True)
 torch.backends.cuda.enable_flash_sdp(True)
+
 
 # =============================================================================
 # Normalization
@@ -66,6 +73,7 @@ class AxialRoPE(nn.Module):
         self.register_buffer("freqs_w", freqs_w.view(dim // 4, num_heads).T)
 
     def setup_freqs(self, dim: int, max_harmonics: int):
+        # limit the spatial frequency to harmonics
         return torch.linspace(math.log(1), math.log(max_harmonics), dim).exp().round()
 
     def forward(self, coords: torch.Tensor) -> torch.Tensor:
@@ -211,7 +219,6 @@ class CircularNeighborhoodSelfAttentionBlock(GlobalSelfAttentionBlock):
             h = einops.rearrange(h, "B H W N D -> B H W (N D)")
             h = self.after_attn(h)
         else:
-            #! TODO: check if this is correct
             q, k, v = einops.rearrange(
                 qkv, "B H W (T N D) -> T B H W N D", T=3, D=self.head_dim
             )
@@ -257,6 +264,7 @@ class PatchMerging(nn.Sequential):
 
 
 class PatchExpanding(nn.Module):
+    # The interpolation coefficient `alpha` is constrained in [0,1] via sigmoid
     def __init__(self, dim: int):
         super().__init__()
         self.linear = nn.Linear(dim, dim * 2, bias=False)
@@ -266,7 +274,6 @@ class PatchExpanding(nn.Module):
         x = self.linear(x)
         x = einops.rearrange(x, "B H W (P1 P2 C) -> B (H P1) (W P2) C", P1=2, P2=2)
         x = torch.lerp(skip, x, self.alpha.sigmoid().to(x))
-        # alpha*x+(1-alpha)*skip
         return x
 
 

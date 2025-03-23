@@ -56,13 +56,20 @@ Unconditional generation using the pre-trained model:
 import torch
 import torchdiffeq
 
-# Setup a pre-trained model
-device = "cuda"
-model, lidar_utils, cfg = torch.hub.load("kazuto1011/r2flow", "pretrained_r2flow", device=device)
-
-# Euler sampling
+# Params
 nfe = 256
 batch_size = 1
+device = "cuda"
+
+# Setup a pre-trained model
+model, lidar_utils, cfg = torch.hub.load(
+    repo_or_dir="kazuto1011/r2flow",
+    model="pretrained_r2flow",
+    config="r2flow-kitti360-2rf",  # https://github.com/kazuto1011/r2flow/releases/tag/weights
+    device=device,
+)
+
+# Euler sampling
 t = torch.linspace(0, 1, nfe + 1, device=device)
 x0 = torch.randn(batch_size, model.in_channels, *model.resolution, device=device)
 with torch.inference_mode():
@@ -71,7 +78,10 @@ with torch.inference_mode():
 # Post-processing
 range_image = lidar_utils.restore_metric_depth(x1[:, [0]])  # range in [0, 80]
 rflct_image = lidar_utils.denormalize(x1[:, [1]])  # reflectance in [0, 1]
+point_cloud = lidar_utils.convert_metric_depth(range_image, format="cartesian")
 ```
+
+We also provide [a Gradio-based demo](https://huggingface.co/spaces/kazuto1011/r2flow) on Hugginface spaces.
 
 ## Training
 
@@ -97,5 +107,8 @@ If you find this code useful for your research, please cite our paper:
 
 ## Acknowledgements
 
-* The implementations of JSD and MMD metrics are based on [vzyrianov/lidargen](https://github.com/vzyrianov/lidargen).
-* The implementations of FRID, FSVD, and FPVD metrics are based on [hancyran/LiDAR-Diffusion](https://github.com/hancyran/LiDAR-Diffusion)
+* The most part is based on our previous work ([`kazuto1011/r2dm`](https://github.com/kazuto1011/r2dm)).
+* Rectified Flow is implemented using [`torchcfm`](https://github.com/atong01/conditional-flow-matching).
+* HDiT is based on [`crowsonkb/k-diffusion`](https://github.com/crowsonkb/k-diffusion).
+* JSD and MMD are based on [`vzyrianov/lidargen`](https://github.com/vzyrianov/lidargen).
+* FRID, FSVD, and FPVD are based on [`hancyran/LiDAR-Diffusion`](https://github.com/hancyran/LiDAR-Diffusion)
