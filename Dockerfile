@@ -25,7 +25,7 @@ ARG HOME="/home/$UNAME"
 
 # ====================================================
 # python env
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 WORKDIR $HOME
 RUN uv venv --python 3.10
