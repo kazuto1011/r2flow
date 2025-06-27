@@ -2,11 +2,9 @@ from pathlib import Path
 
 import torch
 
-from r2flow.models.adm_unet import ADMUNet
-from r2flow.models.efficient_unet import EfficientUNet
-from r2flow.models.hdit import HDiT
-from r2flow.utils.lidar import LiDARUtility
-from r2flow.utils.option import DefaultConfig
+from ..models import ADMUNet, EfficientUNet, HDiT
+from .lidar import LiDARUtility
+from .option import DefaultConfig
 
 
 def count_parameters(model: torch.nn.Module) -> int:

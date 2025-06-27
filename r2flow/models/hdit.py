@@ -18,9 +18,6 @@ from torch.nn.modules.utils import _pair
 
 from . import encoding, ops
 
-torch.backends.cuda.enable_flash_sdp(True)
-
-
 # =============================================================================
 # Normalization
 # =============================================================================
@@ -493,7 +490,7 @@ class HDiT(nn.Module):
         time_embed_channels: int = 256,
         patch_size: List[int] = (1, 4),
         window_size: List[int] = (3, 9),  # must be odd
-        depths: List[int] = (2, 2, 2, 2),
+        depths: List[int] = (3, 3, 3, 3),
         num_heads: List[int] = (2, 4, 8, 16),
         dilation: List[int] = (1, 1, 1, 1),  # dinat config
         mlp_ratio: float = 3.0,

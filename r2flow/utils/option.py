@@ -6,28 +6,28 @@ from simple_parsing.helpers import list_field
 
 @dataclass
 class ModelConfig:
-    architecture: str = "efficient_unet"
-    base_channels: int = 64
-    temb_channels: int | None = None
+    architecture: str = "nat_hdit"
+    base_channels: int = 128
+    temb_channels: int | None = 256
     channel_multiplier: List[int] = list_field(1, 2, 4, 8)
     num_residual_blocks: List[int] = list_field(3, 3, 3, 3)
     gn_num_groups: int = 32 // 4
     gn_eps: float = 1e-6
-    attn_num_heads: int = 8
+    attn_num_heads: List[int] | int = list_field(2, 4, 8, 16)
     coords_encoding: Literal[
         "spherical_harmonics",
         "polar_coordinates",
         "fourier_features",
         "learnable_embedding",
         None,
-    ] = "fourier_features"
+    ] = "learnable_embedding"
     dropout: float = 0.0
 
 
 @dataclass
 class FlowConfig:
     num_sampling_steps: int = 32
-    formulation: Literal["otcfm", "icfm", "sbcfm", "1rf", "fm"] = "otcfm"
+    formulation: Literal["otcfm", "icfm"] = "icfm"
     sigma: float = 0.0
     solver: str = "dopri5"
 
@@ -48,9 +48,9 @@ class TrainingConfig:
     adam_epsilon: float = 1e-8
     ema_decay: float = 0.995
     ema_update_every: int = 10
-    mixed_precision: str = "fp16"
+    mixed_precision: str = "no"
     dynamo_backend: str = "inductor"
-    output_dir: str = "logs/flow"
+    output_dir: str = "logs/r2flow-1rf"
     seed: int = 0
     timestep_distribution: Literal["uniform", "u_shaped", "logit_normal"] = "uniform"
     loss_fn: Literal["l1", "l2", "smooth_l1", "pseudo_huber"] = "l2"
@@ -73,34 +73,16 @@ class DataConfig:
 
 
 @dataclass
+class FinetuningConfig:
+    init_ckpt: str | None = None
+    sample_dir: str | None = None
+    k_distil: int | None = None
+
+
+@dataclass
 class DefaultConfig:
     data: DataConfig = DataConfig()
     model: ModelConfig = ModelConfig()
     flow: FlowConfig = FlowConfig()
     training: TrainingConfig = TrainingConfig()
-
-
-@dataclass
-class ReFlowConfig:
-    training: TrainingConfig = TrainingConfig(
-        batch_size=8,
-        num_workers=4,
-        num_images_training=2_560_000,
-        num_images_lr_warmup=80_000,
-        num_steps_logging=1_000,
-        num_steps_checkpoint=10_000,
-        gradient_accumulation_steps=1,
-        lr=1e-4,
-        adam_beta1=0.9,
-        adam_beta2=0.99,
-        adam_weight_decay=0.0,
-        adam_epsilon=1e-8,
-        ema_decay=0.995,
-        ema_update_every=10,
-        mixed_precision="fp16",
-        dynamo_backend="inductor",
-        output_dir="logs/reflow",
-        seed=0,
-        timestep_distribution="u_shaped",
-        loss_fn="pseudo_huber",
-    )
+    finetuning: FinetuningConfig = FinetuningConfig()
