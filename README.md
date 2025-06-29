@@ -67,6 +67,7 @@ import torch
 import torchdiffeq
 
 # Settings
+torch.set_grad_enabled(False)
 model_config = "r2flow-kitti360-1rf"  # See https://github.com/kazuto1011/r2flow/releases/tag/weights
 nfe = 256  # Number of function evaluations
 batch_size = 1
