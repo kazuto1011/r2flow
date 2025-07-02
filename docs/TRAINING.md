@@ -7,8 +7,8 @@ This page provides instructions for training and evaluation procedures of R2Flow
   - [2. Straightening (`2-RF`)](#2-straightening-2-rf)
     - [2.1. Generate 1M samples from the `1-RF` model](#21-generate-1m-samples-from-the-1-rf-model)
     - [2.2 Finetune the `1-RF` model](#22-finetune-the-1-rf-model)
-  - [3. $k$-timestep distillation (+ `k-TD`)](#3-k-timestep-distillation--k-td)
-    - [3.1. Generate 1M samples from the `2-RF` model](#31-generate-1m-samples-from-the-2-rf-model)
+  - [3. k-timestep distillation (+ `k-TD`)](#3-k-timestep-distillation--k-td)
+    - [3.1. Generate 100k samples from the `2-RF` model](#31-generate-100k-samples-from-the-2-rf-model)
     - [3.2 Finetune the `2-RF` model](#32-finetune-the-2-rf-model)
 - [Evaluation](#evaluation)
 - [Other settings](#other-settings)
@@ -116,11 +116,11 @@ logs/
                 └── training_config.json
 ```
 
-### 3. $k$-timestep distillation (+ `k-TD`)
+### 3. k-timestep distillation (+ `k-TD`)
 
 Assume that we have completed `2-RF` training under `./logs/r2flow-2rf/kitti_360/spherical-1024/YYYYMMDDTHHMMSS`.
 
-#### 3.1. Generate 1M samples from the `2-RF` model
+#### 3.1. Generate 100k samples from the `2-RF` model
 
 ```bash
 RESULT_DIR=./logs/r2flow-2rf/kitti_360/spherical-1024/YYYYMMDDTHHMMSS
@@ -128,7 +128,7 @@ CHECKPOINT_PATH=${RESULT_DIR}/models/checkpoint_0002560000.pth
 SAMPLE_DIR=${RESULT_DIR}/samples_dopri5
 
 accelerate launch --multi_gpu sample.py \
-    --num_samples 1_000_000 --batch_size 64 \
+    --num_samples 100_000 --batch_size 64 \
     --solver dopri5 --tol 1e-5 \
     --ckpt ${CHECKPOINT_PATH} --output_dir ${SAMPLE_DIR}
 ```
@@ -157,7 +157,7 @@ logs/
 │               │   ├── ...
 │               │   └── checkpoint_0002560000.pth  # Initial 2-RF weights
 │               ├── ...
-│               └── samples_dopri5/                # Generated 1M samples
+│               └── samples_dopri5/                # Generated 100k samples
 ├── r2flow-2rf-1td/  # 1-step distillation
 ├── r2flow-2rf-2td/  # 2-step distillation
 └── r2flow-2rf-4td/  # 4-step distillation
@@ -211,7 +211,7 @@ The above commands report the following metrics.
 |Metrics|Representation|Reflectance image|Range image|Point cloud|Voxel|Bird's eye view (BEV)|
 |:-|:-|:-:|:-:|:-:|:-:|:-:|
 |**FRD** (Fréchet range distance)<br>[Zyrianov et al. ECCV'22]|`RangeNet-53` feature|✓|✓||||
-|**FRID** (Fréchet range image distance<br>[Ran et al. CVPR'24]|`RangeNet-21` feature||✓||||
+|**FRID** (Fréchet range image distance)<br>[Ran et al. CVPR'24]|`RangeNet-21` feature||✓||||
 |**FPD** (Fréchet point cloud distance)<br>[Shu et al. ICCV'19]|`PointNet` feature| | |✓| | |
 |**FPVD** (Fréchet point volume distance)<br>[Ran et al. CVPR'24]|`SPVCNN` feature| | |✓|✓| |
 |**FSVD** (Fréchet surface volume distance)<br>[Ran et al. CVPR'24]|`MinkowskiNet` feature| | ||✓| |
