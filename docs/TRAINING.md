@@ -214,7 +214,7 @@ The above commands report the following metrics.
 |**FRID** (Fréchet range image distance)<br>[Ran et al. CVPR'24]|`RangeNet-21` feature||✓||||
 |**FPD** (Fréchet point cloud distance)<br>[Shu et al. ICCV'19]|`PointNet` feature| | |✓| | |
 |**FPVD** (Fréchet point volume distance)<br>[Ran et al. CVPR'24]|`SPVCNN` feature| | |✓|✓| |
-|**FSVD** (Fréchet surface volume distance)<br>[Ran et al. CVPR'24]|`MinkowskiNet` feature| | ||✓| |
+|**FSVD** (Fréchet sparse volume distance)<br>[Ran et al. CVPR'24]|`MinkowskiNet` feature| | ||✓| |
 |**JSD** (Jensen–Shannon divergence)<br>[Zyrianov et al. ECCV'22]|Histogram| | | | |✓|
 |**MMD** (maximum mean discrepancy)<br>[Zyrianov et al. ECCV'22]|Histogram| | | | |✓|
 
