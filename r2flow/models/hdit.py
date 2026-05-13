@@ -1,8 +1,6 @@
 # =============================================================================
 # This code is based on:
 # https://github.com/crowsonkb/k-diffusion/blob/master/k_diffusion/models/image_transformer_v2.py
-#
-# Call `natten.use_fused_na(True)` for acceleration if running on GPUs.
 # =============================================================================
 
 import math
@@ -198,38 +196,22 @@ class CircularNeighborhoodSelfAttentionBlock(GlobalSelfAttentionBlock):
     ) -> torch.Tensor:
         h = self.norm(x, emb)
         qkv = self.qkv_proj(h)
-        if natten.context.is_fna_enabled():
-            q, k, v = einops.rearrange(
-                qkv, "B H W (T N D) -> T B H W N D", T=3, D=self.head_dim
-            )
-            q, k = self.scale_qk(q, k)
-            q, k = self.apply_rope_qk(q, k, coords)
-            q, k, v = self.before_attn(q, k, v)
-            h = natten.functional.na2d(
-                query=q,
-                key=k,
-                value=v,
-                kernel_size=self.kernel_size,
-                dilation=self.dilation,
-                scale=1.0,
-            )
-            h = einops.rearrange(h, "B H W N D -> B H W (N D)")
-            h = self.after_attn(h)
-        else:
-            q, k, v = einops.rearrange(
-                qkv, "B H W (T N D) -> T B H W N D", T=3, D=self.head_dim
-            )
-            q, k = self.scale_qk(q, k)
-            q, k = self.apply_rope_qk(q, k, coords)
-            q, k, v = self.before_attn(q, k, v)
-            q = einops.rearrange(q, "B H W N D -> B N H W D")
-            k = einops.rearrange(k, "B H W N D -> B N H W D")
-            v = einops.rearrange(v, "B H W N D -> B N H W D")
-            qk = natten.functional.na2d_qk(q, k, self.kernel_size)
-            a = qk.softmax(dim=-1).to(v.dtype)
-            h = natten.functional.na2d_av(a, v, self.kernel_size)
-            h = einops.rearrange(h, "B N H W D -> B H W (N D)")
-            h = self.after_attn(h)
+        q, k, v = einops.rearrange(
+            qkv, "B H W (T N D) -> T B H W N D", T=3, D=self.head_dim
+        )
+        q, k = self.scale_qk(q, k)
+        q, k = self.apply_rope_qk(q, k, coords)
+        q, k, v = self.before_attn(q, k, v)
+        h = natten.functional.na2d(
+            query=q,
+            key=k,
+            value=v,
+            kernel_size=self.kernel_size,
+            dilation=self.dilation,
+            scale=1.0,
+        )
+        h = einops.rearrange(h, "B H W N D -> B H W (N D)")
+        h = self.after_attn(h)
         h = self.dropout(h)
         h = self.out_proj(h)
         return h
